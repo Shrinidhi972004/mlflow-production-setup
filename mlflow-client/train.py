@@ -14,7 +14,7 @@ from sklearn.metrics import (
 # ----------------------------
 # MLflow configuration
 # ----------------------------
-mlflow.set_tracking_uri("http://<EC2_PUBLIC_IP>:5000")
+mlflow.set_tracking_uri("https://mlflow.shrinidhi.space")
 mlflow.set_experiment("sklearn-classification-baseline")
 
 # ----------------------------

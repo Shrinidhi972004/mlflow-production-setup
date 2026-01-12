@@ -25,6 +25,13 @@ spec:
                 secretKeyRef:
                   name: mlflow-db-secret
                   key: MLFLOW_BACKEND_STORE_URI
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
           command:
             - mlflow
           args:
