@@ -74,12 +74,13 @@ Install PostgreSQL client:
 sudo apt install -y postgresql-common
 sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 ```
+
 Install the version of the postgresql you need:
 
 ```bash
-sudo apt install postgresql-18
-
+sudo apt install postgresql-16
 ```
+
 Connect to the RDS PostgreSQL instance:
 
 ```bash
@@ -90,17 +91,45 @@ user=<MASTER_USERNAME> \
 sslmode=require"
 ```
 
-Create the MLflow database and user:
+Create the MLflow database and user with proper privileges:
 
 ```sql
-\du
-
+-- Create the database
 CREATE DATABASE mlflow;
+
+-- Create the user
 CREATE USER mlflow WITH PASSWORD 'mlflow_password';
+
+-- Grant database privileges
 GRANT ALL PRIVILEGES ON DATABASE mlflow TO mlflow;
 
+-- Connect to the mlflow database
+\c mlflow
+
+-- Grant schema privileges (CRITICAL: fixes pod errors)
+GRANT ALL PRIVILEGES ON SCHEMA public TO mlflow;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO mlflow;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO mlflow;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO mlflow;
+
+-- Set default privileges for future objects
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO mlflow;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO mlflow;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO mlflow;
+
+-- Make mlflow the owner of the database (recommended)
+ALTER DATABASE mlflow OWNER TO mlflow;
+
+-- Verify privileges
+\du
+\l
+\dn+
+
+-- Exit
 \q
 ```
+
+**Note**: The schema and default privileges grants are essential to prevent "permission denied" errors when MLflow creates tables in the database.
 
 ## Step 4: Install Docker
 
